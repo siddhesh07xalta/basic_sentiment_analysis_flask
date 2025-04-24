@@ -1,11 +1,18 @@
 from flask import Flask, request, jsonify
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import re
 
 app = Flask(__name__)
 analyzer = SentimentIntensityAnalyzer()
 
+def clean_text(text):
+    # Replace multiple whitespace characters with a single space
+    cleaned = re.sub(r'\s+', ' ', text)
+    return cleaned.strip()
+
 def get_sentiment(text):
-    score = analyzer.polarity_scores(text)
+    cleaned_text = clean_text(text)
+    score = analyzer.polarity_scores(cleaned_text)
     compound = score['compound']
     if compound >= 0.05:
         return "positive"
