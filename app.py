@@ -6,7 +6,6 @@ app = Flask(__name__)
 analyzer = SentimentIntensityAnalyzer()
 
 def clean_text(text):
-    # Replace multiple whitespace characters with a single space
     cleaned = re.sub(r'\s+', ' ', text)
     return cleaned.strip()
 
@@ -23,14 +22,18 @@ def get_sentiment(text):
 
 @app.route('/sentiment', methods=['POST'])
 def sentiment():
-    data = request.json
-    if 'text' not in data:
+    data = request.get_json(silent=True)
+    if not data or 'text' not in data:
         return jsonify({'error': 'No text provided'}), 400
     
     sentiment_result = get_sentiment(data['text'])
     return jsonify({
         'sentiment': sentiment_result
     })
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
